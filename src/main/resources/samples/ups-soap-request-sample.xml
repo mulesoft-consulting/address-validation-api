@@ -1,0 +1,22 @@
+<v11:XAVRequest xmlns:v11="http://www.ups.com/XMLSchema/XOLTWS/xav/v1.0"
+	xmlns:v12="http://www.ups.com/XMLSchema/XOLTWS/Common/v1.0">
+	<v12:Request>
+		<!--Zero or more repetitions: -->
+		<v12:RequestOption>3</v12:RequestOption>
+		<!--Optional: -->
+		<v12:TransactionReference>
+			<v12:CustomerContext>Your Test Case Summary Description
+			</v12:CustomerContext>
+			<v12:XpciVersion>1.0</v12:XpciVersion>
+		</v12:TransactionReference>
+		<v12:RequestAction>XAV</v12:RequestAction>
+	</v12:Request>
+	<!--Optional: -->
+	<v11:AddressKeyFormat>
+		<v11:AddressLine>77 Gear St</v11:AddressLine>
+		<v11:PoliticalDivision2>SAN Fran</v11:PoliticalDivision2>
+		<v11:PoliticalDivision1>CA</v11:PoliticalDivision1>
+		<v11:PostcodePrimaryLow>94018</v11:PostcodePrimaryLow>
+		<v11:CountryCode>US</v11:CountryCode>
+	</v11:AddressKeyFormat>
+</v11:XAVRequest>

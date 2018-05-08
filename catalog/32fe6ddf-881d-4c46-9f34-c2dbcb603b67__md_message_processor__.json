@@ -1,0 +1,11 @@
+{
+    "inputMessageMetadata": {},
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "XAVRequest"
+        }
+    },
+    "id": "32fe6ddf-881d-4c46-9f34-c2dbcb603b67",
+    "version": "5.2.0.0"
+}

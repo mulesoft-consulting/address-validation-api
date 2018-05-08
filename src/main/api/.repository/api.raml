@@ -1,0 +1,35 @@
+#%RAML 1.0
+title: Address Validation
+description: Address Validation API
+version: 1.0.0
+baseUri: https://mocksvc.mulesoft.com/mocks/b932b3ba-f148-44c3-a5e7-193289a8740c # baseUri: https://mocksvc.mulesoft.com/mocks/6fb96800-0f53-4aaf-bcac-e699a2a4c3a8 # baseUri: http://localost:8081
+mediaType:
+- application/json
+
+uses: 
+  addressTypes: data-types/address-datatypes-library.raml
+
+types: 
+  address: addressTypes.address
+  addressList: addressTypes.addressList
+  errorAddressNotFound: addressTypes.errorAddressNotFound
+
+/address-validation:
+  displayName: Address Validation
+  description: Address Validation Resources
+  /street-address:
+    displayName: Street Address Validation
+    description: Street Address Validation
+    post:
+      body: 
+        type: address
+      responses: 
+        200:
+          body: 
+            type: addressList
+            example: !include data-types/address-list-example.raml
+        404:
+          description: Address not found error
+          body: 
+            type: errorAddressNotFound
+            

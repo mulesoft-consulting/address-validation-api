@@ -1,0 +1,16 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "Web_Service_Consumer",
+            "typeId": "XAVResponse"
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "response"
+        }
+    },
+    "id": "e1c108b6-705c-434a-83c7-0bd96173a410",
+    "version": "5.2.0.0"
+}

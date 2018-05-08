@@ -1,0 +1,29 @@
+{
+  "UPSSecurity": {
+    "UsernameToken": {
+      "Username": "user1",
+      "Password": "pwd1"
+    },
+    "ServiceAccessToken": {
+      "AccessLicenseNumber": "accesskey1"
+    }
+  },
+  "XAVRequest": {
+    "Request": {
+      "RequestOption": "1",
+      "TransactionReference": {
+        "CustomerContext": "Your Customer Context"
+      }
+    },
+    "MaximumListSize": "10",
+    "AddressKeyFormat": {
+      "ConsigneeName": "Sample name",
+      "BuildingName": "",
+      "AddressLine": "77 Gear Rd",
+      "PoliticalDivision2": "SF",
+      "PoliticalDivision1": "CA",
+      "PostcodePrimaryLow": "94018",
+      "CountryCode": "US"
+    }
+  }
+}

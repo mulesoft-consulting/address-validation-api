@@ -1,0 +1,51 @@
+#%RAML 1.0 Library
+usage: Defines common object definitions for Address Validation
+types: 
+  address:
+    description: Address definition
+    properties: 
+      business:
+        type: string
+        description: Name of a business or individual
+        required: false
+      street:
+        type: string
+        description: Street address
+        required: false
+      suite:
+        type: string
+        description: Suite, Room or Apartment Floor
+        required: false
+      city:
+        type: string
+        description: City
+        required: true
+      state:
+        type: string
+        description: State
+        required: false
+      postal:
+        type: string
+        description: Postal Code
+        required: true
+      country:
+        type: string
+        description: Country
+        required: false
+        default: US
+    example:
+      business: "MuleSoft"
+      street: "77 Gear St"
+      suite: ""
+      city: "SF"
+      state: "CA"
+      postal: "94018"
+      country: "US"
+
+  addressList: address[]
+
+  errorAddressNotFound:
+    properties: 
+      message: string
+    example:
+      message: "Given address not found"

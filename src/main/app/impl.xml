@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:ws="http://www.mulesoft.org/schema/mule/ws" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+    <ws:consumer-config name="Web_Service_Consumer" wsdlLocation="XAV.wsdl" service="XAVService" port="XAVPort" serviceAddress="https://onlinetools.ups.com/webservices/XAV" doc:name="Web Service Consumer"/>
+    <http:request-config name="HTTP_UPS_JSON_Configuration" protocol="${ups.api.endpoint.json.protocol}" host="${ups.api.endpoint.json.host}" port="${ups.api.endpoint.json.port}" basePath="/" doc:name="HTTP Request Configuration"/>
+    <sub-flow name="SOAPFlow">
+        <flow-ref name="subflow-set-ups-params" doc:name="subflow-set-ups-params"/>
+        <dw:transform-message doc:name="Transform Message" metadata:id="32fe6ddf-881d-4c46-9f34-c2dbcb603b67">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%namespace ns1 http://www.ups.com/XMLSchema/XOLTWS/xav/v1.0
+%namespace ns0 http://www.ups.com/XMLSchema/XOLTWS/Common/v1.0
+---
+{
+	ns1#XAVRequest: {
+		ns0#Request: {
+			ns0#RequestOption: flowVars.upsDefaultRequestOption,
+			ns0#TransactionReference: {
+				ns0#CustomerContext: "Your customer context",
+				ns0#XpciVersion: 1.0
+			},
+			ns0#RequestAction: "XAV"
+		},
+		ns1#AddressKeyFormat: {
+			ns1#AddressLine: payload.street,
+			ns1#PoliticalDivision2: payload.city,
+			ns1#PoliticalDivision1: payload.state,
+			ns1#PostcodePrimaryLow: payload.postal as :number,
+			ns1#CountryCode: flowVars.upsDefaultCountryCode
+		}
+	}
+}]]></dw:set-payload>
+            <dw:set-property propertyName="soap.UPSSecurity"><![CDATA[%dw 1.0
+%output application/xml
+%namespace ns0 http://www.ups.com/XMLSchema/XOLTWS/UPSS/v1.0
+---
+{
+	ns0#UPSSecurity: {
+		ns0#UsernameToken: {
+			ns0#Username: flowVars.upsUser,
+			ns0#Password: flowVars.upsPwd
+		},
+		ns0#ServiceAccessToken: {
+			ns0#AccessLicenseNumber: flowVars.upsAccessKey
+		}
+	}
+}]]></dw:set-property>
+        </dw:transform-message>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+        <ws:consumer config-ref="Web_Service_Consumer" operation="ProcessXAV" doc:name="Invoke UPS SOAP Web Service"/>
+        <dw:transform-message doc:name="Transform Message" metadata:id="e1c108b6-705c-434a-83c7-0bd96173a410">
+            <dw:input-payload mimeType="application/xml"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+%namespace ns1 http://www.ups.com/XMLSchema/XOLTWS/xav/v1.0
+---
+payload.ns1#XAVResponse.*ns1#Candidate map ((candidate , indexOfCandidate) -> {
+	street: candidate.ns1#AddressKeyFormat.*ns1#AddressLine[0],
+	suite: candidate.ns1#AddressKeyFormat.*ns1#AddressLine[1] when candidate.ns1#AddressKeyFormat.*ns1#AddressLine[1] != null otherwise "",
+	city: candidate.ns1#AddressKeyFormat.ns1#PoliticalDivision2,
+	state: candidate.ns1#AddressKeyFormat.ns1#PoliticalDivision1,
+	postal: candidate.ns1#AddressKeyFormat.ns1#PostcodePrimaryLow,
+	country: candidate.ns1#AddressKeyFormat.ns1#CountryCode
+}) when payload.ns1#XAVResponse.*ns1#Candidate != null otherwise []]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+    <sub-flow name="subflow-set-ups-params">
+        <set-variable variableName="upsUser" value="${ups.api.user}" doc:name="Set User"/>
+        <set-variable variableName="upsPwd" value="${ups.api.pwd}" doc:name="Set Password"/>
+        <set-variable variableName="upsAccessKey" value="${ups.api.access-key}" doc:name="Set Access Key"/>
+        <set-variable variableName="upsDefaultCountryCode" value="${ups.api.default.country-code}" doc:name="Set Default Country Code"/>
+        <set-variable variableName="upsDefaultRequestOption" value="${ups.api.default.request-option}" doc:name="Set Default Request Option"/>
+    </sub-flow>
+</mule>
